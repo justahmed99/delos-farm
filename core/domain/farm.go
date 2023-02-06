@@ -3,9 +3,9 @@ package domain
 import "errors"
 
 type Farm struct {
-	ID        int64
-	name      string
-	is_active bool
+	ID       int64  `gorm:"primaryKey" json:"id"`
+	Name     string `gorm:"type varchar(50); not null" json:"name"`
+	IsActive bool   `json:"isActive; not null"`
 }
 
 func NewFarm(name string) (*Farm, error) {
@@ -14,8 +14,8 @@ func NewFarm(name string) (*Farm, error) {
 	}
 
 	return &Farm{
-		name:      name,
-		is_active: true,
+		Name:     name,
+		IsActive: true,
 	}, nil
 }
 
@@ -23,11 +23,11 @@ func (farm *Farm) UpdateFarm(name string) error {
 	if name == "" {
 		return errors.New("Name is required")
 	}
-	farm.name = name
+	farm.Name = name
 	return nil
 }
 
 func (farm *Farm) DeleteFarm() error {
-	farm.is_active = false
+	farm.IsActive = false
 	return nil
 }

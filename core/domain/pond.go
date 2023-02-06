@@ -3,43 +3,43 @@ package domain
 import "errors"
 
 type Pond struct {
-	ID        int64
-	name      string
-	pond_id   int64
-	is_active bool
+	ID       int64  `gorm:"primaryKey" json:"id"`
+	Name     string `gorm:"type:varchar(50);not null" json:"name"`
+	FarmID   int64  `gorm:"type:int64;not null" json:"pondId"`
+	IsActive bool   `json:"isActive"`
 }
 
-func NewPond(name string, pond_id int64) (*Pond, error) {
+func NewPond(name string, farm_id int64) (*Pond, error) {
 	if name == "" {
 		return nil, errors.New("Name is required")
 	}
 
-	if pond_id == 0 {
+	if farm_id == 0 {
 		return nil, errors.New("Pond ID is required")
 	}
 
 	return &Pond{
-		name:      name,
-		pond_id:   pond_id,
-		is_active: true,
+		Name:     name,
+		FarmID:   farm_id,
+		IsActive: true,
 	}, nil
 }
 
-func (pond *Pond) UpdatePond(name string, pond_id int64) error {
+func (pond *Pond) UpdatePond(name string, farm_id int64) error {
 	if name == "" {
 		return errors.New("Name is required")
 	}
 
-	if pond_id == 0 {
+	if farm_id == 0 {
 		return errors.New("Pond ID is required")
 	}
 
-	pond.name = name
-	pond.pond_id = pond_id
+	pond.Name = name
+	pond.FarmID = farm_id
 	return nil
 }
 
 func (pond *Pond) DeletePond() error {
-	pond.is_active = false
+	pond.IsActive = false
 	return nil
 }
