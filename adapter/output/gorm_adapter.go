@@ -5,6 +5,16 @@ import (
 	"gorm.io/gorm"
 )
 
+type GormAdapter struct {
+	db *gorm.DB
+}
+
+func NewGormAdapter(db *gorm.DB) *GormAdapter {
+	return &GormAdapter{
+		db: db,
+	}
+}
+
 func NewGormFarmRepository(db *gorm.DB) port.FarmRepository {
 	return &GormFarmRepository{db: db}
 }

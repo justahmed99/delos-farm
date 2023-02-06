@@ -7,5 +7,4 @@ type PondRepository interface {
 	GetPondByID(id int64) (*domain.Pond, error)
 	UpdatePond(pond *domain.Pond) error
 	SoftDeletePond(id int64) error
-	// SoftDeletePondsByFarmID(id int64) error
 }
