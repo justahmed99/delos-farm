@@ -1,8 +1,9 @@
 package adapter
 
 import (
+	"errors"
+
 	"github.com/justahmed99/delos-farm/core/domain"
-	// "github.com/justahmed99/delos-farm/core/port"
 	"gorm.io/gorm"
 )
 
@@ -22,7 +23,7 @@ type GormFarmRepository struct {
 }
 
 func (r *GormFarmRepository) CreateFarm(farm *domain.Farm) (*domain.Farm, error) {
-	farm.IsActive = true
+	farm.NewFarm(farm.Name)
 	err := r.db.Create(farm).Error
 	if err != nil {
 		return nil, err
@@ -32,17 +33,28 @@ func (r *GormFarmRepository) CreateFarm(farm *domain.Farm) (*domain.Farm, error)
 
 func (r *GormFarmRepository) GetFarmByID(id int64) (*domain.Farm, error) {
 	farm := &domain.Farm{}
-	err := r.db.First(farm, id).Error
+	err := r.db.Where("id = ? AND is_active = ?", id, true).First(farm).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, err
 	}
 	return farm, nil
 }
 
-func (r *GormFarmRepository) UpdateFarm(farm *domain.Farm) (*domain.Farm, error) {
-	err := r.db.Save(farm).Error
+func (r *GormFarmRepository) GetFarms() ([]*domain.Farm, error) {
+	var farms []*domain.Farm
+	err := r.db.Where("is_active = ?", true).Find(&farms).Error
 	if err != nil {
 		return nil, err
+	}
+	return farms, nil
+}
+
+func (r *GormFarmRepository) UpdateFarm(farm *domain.Farm) (*domain.Farm, error) {
+	farm.UpdateFarm(farm.Name)
+	affected_row := r.db.Model(&farm).Where("id = ? AND is_active = ?", farm.ID, true).Updates(&farm).RowsAffected
+	if affected_row == 0 {
+		insert_new_farm, _ := r.CreateFarm(farm)
+		return insert_new_farm, errors.New("Update failed, insert new instead!")
 	}
 	return farm, nil
 }
@@ -60,12 +72,6 @@ func (r *GormFarmRepository) SoftDeleteFarm(id int64) error {
 		return err_delete
 	}
 	return nil
-	// farm.DeleteFarm()
-	// err := r.db.Save(farm).Error
-	// if err != nil {
-	// 	return nil
-	// }
-	// return err
 }
 
 //////// FARM REPOSITORY END

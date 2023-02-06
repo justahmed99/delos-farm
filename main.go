@@ -23,14 +23,14 @@ func main() {
 	}
 
 	db.AutoMigrate(&domain.Farm{}, &domain.Pond{})
-	// db.AutoMigrate(&domain.Pond{})
 
 	router := gin.Default()
 	farmRepository := adapter.NewGormFarmRepository(db)
 	farmHandler := handler.NewFarmHandler(usecase.NewFarmUsesCases(farmRepository))
 	router.GET("/v1/farm/:id", farmHandler.GetFarmById)
+	router.GET("/v1/farm", farmHandler.GetFarms)
 	router.POST("/v1/farm", farmHandler.CreateFarm)
-	router.PUT("/v1/farm/:id", farmHandler.UpdateFarm)
+	router.PUT("/v1/farm", farmHandler.UpdateFarm)
 	router.DELETE("/v1/farm/:id", farmHandler.DeleteFarm)
 
 	// pondHandler := handler.NewPondHandler(usecase.PondUseCases())
@@ -40,6 +40,4 @@ func main() {
 	// router.DELETE("/v1/farm/:id", pondHandler.DeleteFarm)
 
 	router.Run("localhost:9090")
-	// db.AutoMigrate(&domain.Farm{})
-	// db.AutoMigrate(&domain.Pond{})
 }

@@ -21,12 +21,20 @@ func NewFarmHandler(farmUseCase usecase.FarmUseCases) *FarmHandler {
 
 func (h *FarmHandler) GetFarmById(context *gin.Context) {
 	id, _ := strconv.ParseInt(context.Param("id"), 10, 64)
-	pond, err := h.farmUseCases.GetFarmByID(id)
+	farm, err := h.farmUseCases.GetFarmByID(id)
 	if err != nil {
 		context.IndentedJSON(http.StatusNotFound, gin.H{"message": "Farm data not found"})
 		return
 	}
-	context.IndentedJSON(http.StatusOK, pond)
+	context.IndentedJSON(http.StatusOK, farm)
+}
+
+func (h *FarmHandler) GetFarms(context *gin.Context) {
+	farms, err := h.farmUseCases.GetFarms()
+	if err != nil {
+		context.IndentedJSON(http.StatusNoContent, gin.H{"message": "No content"})
+	}
+	context.IndentedJSON(http.StatusOK, farms)
 }
 
 func (h *FarmHandler) CreateFarm(context *gin.Context) {
@@ -50,13 +58,15 @@ func (h *FarmHandler) UpdateFarm(context *gin.Context) {
 
 	if err := context.ShouldBindJSON(&farm); err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
 	}
 
-	created_pond, err := h.farmUseCases.UpdateFarm(farm)
+	updated_pond, err := h.farmUseCases.UpdateFarm(farm)
 	if err != nil {
-		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		context.AbortWithStatusJSON(http.StatusOK, updated_pond)
+		return
 	}
-	context.IndentedJSON(http.StatusOK, created_pond)
+	context.IndentedJSON(http.StatusOK, updated_pond)
 }
 
 func (h *FarmHandler) DeleteFarm(context *gin.Context) {

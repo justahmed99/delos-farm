@@ -5,10 +5,10 @@ import "errors"
 type Farm struct {
 	ID       int64  `gorm:"primaryKey" json:"id"`
 	Name     string `gorm:"type varchar(50); not null" json:"name"`
-	IsActive bool   `json:"isActive; not null"`
+	IsActive bool   `gorm:"not null; default:true" json:"isActive"`
 }
 
-func NewFarm(name string) (*Farm, error) {
+func (farm *Farm) NewFarm(name string) (*Farm, error) {
 	if name == "" {
 		return nil, errors.New("Name is required")
 	}
@@ -19,12 +19,15 @@ func NewFarm(name string) (*Farm, error) {
 	}, nil
 }
 
-func (farm *Farm) UpdateFarm(name string) error {
+func (farm *Farm) UpdateFarm(name string) (*Farm, error) {
 	if name == "" {
-		return errors.New("Name is required")
+		return nil, errors.New("Name is required")
 	}
-	farm.Name = name
-	return nil
+	return &Farm{
+		Name: name,
+	}, nil
+	// farm.Name = name
+	// return nil
 }
 
 func (farm *Farm) DeleteFarm() error {
