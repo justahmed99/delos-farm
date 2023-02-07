@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	fmt.Print("Welcome to delos-farm API")
+	fmt.Println("Welcome to delos-farm API")
 
 	dsn := "host=localhost user=postgres password=development dbname=delos_farm port=5432 sslmode=disable TimeZone=Asia/Jakarta"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -22,7 +22,7 @@ func main() {
 		panic(err)
 	}
 
-	db.AutoMigrate(&domain.Farm{}, &domain.Pond{})
+	db.AutoMigrate(&domain.Farm{}, &domain.Pond{}, &domain.Agent{}, &domain.RequestRecord{})
 
 	router := gin.Default()
 	farmRepository := adapter.NewGormFarmRepository(db)
@@ -42,6 +42,10 @@ func main() {
 	router.PUT("/v1/pond", pondHandler.UpdatePond)
 	router.DELETE("/v1/pond/:id", pondHandler.DeletePond)
 	router.DELETE("/v1/pond/farm/:farm_id", pondHandler.DeletePondsByFarmID)
+
+	monitorRepository := adapter.NewGormMonitorRepository(db)
+	monitorHandler := handler.NewMonitorHandler(usecase.NewMonitorUseCases(monitorRepository))
+	router.GET("/v1/monitor", monitorHandler.GetMonitorData)
 
 	router.Run("localhost:9090")
 }

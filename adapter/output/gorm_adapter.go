@@ -22,3 +22,15 @@ func NewGormFarmRepository(db *gorm.DB) port.FarmRepository {
 func NewGormPondRepository(db *gorm.DB) port.PondRepository {
 	return &GormPondRepository{db: db}
 }
+
+func NewGormAgentRepository(db *gorm.DB) port.AgentRepository {
+	return &GormAgentRepository{db: db}
+}
+
+func NewGormRecordRequestRepository(db *gorm.DB) port.RecordRequestRepository {
+	return &GormRecordRequestRepository{db: db}
+}
+
+func NewGormMonitorRepository(db *gorm.DB) port.MonitorRepository {
+	return &GormMonitorRepository{db: db}
+}

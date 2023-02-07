@@ -1,16 +1,17 @@
 package usecase
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/justahmed99/delos-farm/core/domain"
 	"github.com/justahmed99/delos-farm/core/port"
 )
 
 type FarmUseCases interface {
-	CreateFarm(farm *domain.Farm) (*domain.Farm, error)
-	GetFarmByID(id int64) (*domain.Farm, error)
-	GetFarms() ([]*domain.Farm, error)
-	UpdateFarm(farm *domain.Farm) (*domain.Farm, error)
-	DeleteFarm(id int64) error
+	CreateFarm(context *gin.Context, farm *domain.Farm) (*domain.Farm, error)
+	GetFarmByID(context *gin.Context, id string) (*domain.Farm, error)
+	GetFarms(context *gin.Context) ([]*domain.Farm, error)
+	UpdateFarm(context *gin.Context, farm *domain.Farm) (*domain.Farm, error)
+	DeleteFarm(context *gin.Context, id string) error
 }
 
 type FarmUseCasesImpl struct {
@@ -23,22 +24,22 @@ func NewFarmUsesCases(farmRepository port.FarmRepository) FarmUseCases {
 	}
 }
 
-func (useCase *FarmUseCasesImpl) CreateFarm(farm *domain.Farm) (*domain.Farm, error) {
-	return useCase.farmRepository.CreateFarm(farm)
+func (useCase *FarmUseCasesImpl) CreateFarm(context *gin.Context, farm *domain.Farm) (*domain.Farm, error) {
+	return useCase.farmRepository.CreateFarm(context, farm)
 }
 
-func (useCase *FarmUseCasesImpl) GetFarmByID(id int64) (*domain.Farm, error) {
-	return useCase.farmRepository.GetFarmByID(id)
+func (useCase *FarmUseCasesImpl) GetFarmByID(context *gin.Context, id string) (*domain.Farm, error) {
+	return useCase.farmRepository.GetFarmByID(context, id)
 }
 
-func (useCase *FarmUseCasesImpl) GetFarms() ([]*domain.Farm, error) {
-	return useCase.farmRepository.GetFarms()
+func (useCase *FarmUseCasesImpl) GetFarms(context *gin.Context) ([]*domain.Farm, error) {
+	return useCase.farmRepository.GetFarms(context)
 }
 
-func (useCase *FarmUseCasesImpl) UpdateFarm(farm *domain.Farm) (*domain.Farm, error) {
-	return useCase.farmRepository.UpdateFarm(farm)
+func (useCase *FarmUseCasesImpl) UpdateFarm(context *gin.Context, farm *domain.Farm) (*domain.Farm, error) {
+	return useCase.farmRepository.UpdateFarm(context, farm)
 }
 
-func (useCase *FarmUseCasesImpl) DeleteFarm(id int64) error {
-	return useCase.farmRepository.SoftDeleteFarm(id)
+func (useCase *FarmUseCasesImpl) DeleteFarm(context *gin.Context, id string) error {
+	return useCase.farmRepository.SoftDeleteFarm(context, id)
 }

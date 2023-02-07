@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/justahmed99/delos-farm/core/domain"
@@ -20,8 +19,8 @@ func NewPondHandler(pondUseCase usecase.PondUseCases) *PondHandler {
 }
 
 func (h *PondHandler) GetPondById(context *gin.Context) {
-	id, _ := strconv.ParseInt(context.Param("id"), 10, 64)
-	pond, err := h.pondUseCase.GetPondByID(id)
+	id := context.Param("id")
+	pond, err := h.pondUseCase.GetPondByID(context, id)
 	if err != nil {
 		context.IndentedJSON(http.StatusNotFound, gin.H{"message": err.Error()})
 		return
@@ -30,7 +29,7 @@ func (h *PondHandler) GetPondById(context *gin.Context) {
 }
 
 func (h *PondHandler) GetPonds(context *gin.Context) {
-	pond, err := h.pondUseCase.GetPonds()
+	pond, err := h.pondUseCase.GetPonds(context)
 	if err != nil {
 		context.IndentedJSON(http.StatusNotFound, gin.H{"message": err.Error()})
 		return
@@ -39,8 +38,8 @@ func (h *PondHandler) GetPonds(context *gin.Context) {
 }
 
 func (h *PondHandler) GetPondsByFarmID(context *gin.Context) {
-	farm_id, _ := strconv.ParseInt(context.Param("farm_id"), 10, 64)
-	pond, err := h.pondUseCase.GetPondsByFarmID(farm_id)
+	farm_id := context.Param("farm_id")
+	pond, err := h.pondUseCase.GetPondsByFarmID(context, farm_id)
 	if err != nil {
 		context.IndentedJSON(http.StatusNotFound, gin.H{"message": err.Error()})
 		return
@@ -57,7 +56,7 @@ func (h *PondHandler) CreatePond(context *gin.Context) {
 		return
 	}
 
-	created_pond, err := h.pondUseCase.CreatePond(pond)
+	created_pond, err := h.pondUseCase.CreatePond(context, pond)
 	if err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
@@ -74,7 +73,7 @@ func (h *PondHandler) UpdatePond(context *gin.Context) {
 		return
 	}
 
-	created_pond, err := h.pondUseCase.UpdatePond(pond)
+	created_pond, err := h.pondUseCase.UpdatePond(context, pond)
 	if err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
@@ -83,14 +82,8 @@ func (h *PondHandler) UpdatePond(context *gin.Context) {
 }
 
 func (h *PondHandler) DeletePond(context *gin.Context) {
-
-	id, err_input := strconv.ParseInt(context.Param("id"), 10, 64)
-	if err_input != nil {
-		context.IndentedJSON(http.StatusBadRequest, gin.H{"message": "input must be integer"})
-		return
-	}
-
-	delete_err := h.pondUseCase.DeletePond(id)
+	id := context.Param("id")
+	delete_err := h.pondUseCase.DeletePond(context, id)
 	if delete_err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": delete_err.Error()})
 		return
@@ -99,14 +92,8 @@ func (h *PondHandler) DeletePond(context *gin.Context) {
 }
 
 func (h *PondHandler) DeletePondsByFarmID(context *gin.Context) {
-
-	id, err_input := strconv.ParseInt(context.Param("farm_id"), 10, 64)
-	if err_input != nil {
-		context.IndentedJSON(http.StatusBadRequest, gin.H{"message": "input must be integer"})
-		return
-	}
-
-	delete_err := h.pondUseCase.DeletePondsByFarmID(id)
+	id := context.Param("farm_id")
+	delete_err := h.pondUseCase.DeletePondsByFarmID(context, id)
 	if delete_err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": delete_err.Error()})
 		return

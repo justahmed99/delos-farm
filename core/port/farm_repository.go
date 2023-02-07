@@ -1,13 +1,14 @@
 package port
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/justahmed99/delos-farm/core/domain"
 )
 
 type FarmRepository interface {
-	CreateFarm(farm *domain.Farm) (*domain.Farm, error)
-	GetFarmByID(id int64) (*domain.Farm, error)
-	GetFarms() ([]*domain.Farm, error)
-	UpdateFarm(farm *domain.Farm) (*domain.Farm, error)
-	SoftDeleteFarm(id int64) error
+	CreateFarm(context *gin.Context, farm *domain.Farm) (*domain.Farm, error)
+	GetFarmByID(context *gin.Context, id string) (*domain.Farm, error)
+	GetFarms(context *gin.Context) ([]*domain.Farm, error)
+	UpdateFarm(context *gin.Context, farm *domain.Farm) (*domain.Farm, error)
+	SoftDeleteFarm(context *gin.Context, id string) error
 }

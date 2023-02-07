@@ -3,7 +3,9 @@ package adapter
 import (
 	"errors"
 
+	"github.com/gin-gonic/gin"
 	"github.com/justahmed99/delos-farm/core/domain"
+	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
@@ -12,12 +14,20 @@ type GormPondRepository struct {
 }
 
 // CREATE
-func (repo *GormPondRepository) CreatePond(pond *domain.Pond) (*domain.Pond, error) {
+func (repo *GormPondRepository) CreatePond(context *gin.Context, pond *domain.Pond) (*domain.Pond, error) {
+	if context != nil {
+		_, err_record := UpdateRequestRecordAndAgentForPond(repo, context, "POST /pond")
+		if err_record != nil {
+			return nil, err_record
+		}
+	}
+
 	farmRepo := NewGormFarmRepository(repo.db)
-	_, err_farm := farmRepo.GetFarmByID(pond.FarmID)
+	_, err_farm := farmRepo.GetFarmByID(nil, pond.FarmID)
 	if err_farm != nil {
 		return nil, errors.New("farm not found")
 	}
+	pond.ID = uuid.NewV4().String()
 	pond.NewPond(pond.Name, pond.FarmID)
 	err := repo.db.Create(pond).Error
 	if err != nil {
@@ -27,7 +37,14 @@ func (repo *GormPondRepository) CreatePond(pond *domain.Pond) (*domain.Pond, err
 }
 
 // READ ONE
-func (repo *GormPondRepository) GetPondByID(id int64) (*domain.Pond, error) {
+func (repo *GormPondRepository) GetPondByID(context *gin.Context, id string) (*domain.Pond, error) {
+	if context != nil {
+		_, err_record := UpdateRequestRecordAndAgentForPond(repo, context, "GET /pond/:id")
+		if err_record != nil {
+			return nil, err_record
+		}
+	}
+
 	pond := &domain.Pond{}
 	err := repo.db.Where("id = ? AND is_active = ?", id, true).First(pond).Error
 	if err == gorm.ErrRecordNotFound {
@@ -37,7 +54,14 @@ func (repo *GormPondRepository) GetPondByID(id int64) (*domain.Pond, error) {
 }
 
 // READ ALL
-func (repo *GormPondRepository) GetPonds() ([]*domain.Pond, error) {
+func (repo *GormPondRepository) GetPonds(context *gin.Context) ([]*domain.Pond, error) {
+	if context != nil {
+		_, err_record := UpdateRequestRecordAndAgentForPond(repo, context, "GET /pond")
+		if err_record != nil {
+			return nil, err_record
+		}
+	}
+
 	var ponds []*domain.Pond
 	err := repo.db.Where("is_active = ?", true).Find(&ponds).Error
 	if err != nil {
@@ -47,7 +71,14 @@ func (repo *GormPondRepository) GetPonds() ([]*domain.Pond, error) {
 }
 
 // READ BY FARM ID
-func (repo *GormPondRepository) GetPondsByFarmID(farm_id int64) ([]*domain.Pond, error) {
+func (repo *GormPondRepository) GetPondsByFarmID(context *gin.Context, farm_id string) ([]*domain.Pond, error) {
+	if context != nil {
+		_, err_record := UpdateRequestRecordAndAgentForPond(repo, context, "GET /pond/farm/:id")
+		if err_record != nil {
+			return nil, err_record
+		}
+	}
+
 	var ponds []*domain.Pond
 	err := repo.db.Where("farm_id = ? AND is_active = ?", farm_id, true).Find(&ponds).Error
 	if err != nil {
@@ -57,25 +88,39 @@ func (repo *GormPondRepository) GetPondsByFarmID(farm_id int64) ([]*domain.Pond,
 }
 
 // UPDATE
-func (repo *GormPondRepository) UpdatePond(pond *domain.Pond) (*domain.Pond, error) {
+func (repo *GormPondRepository) UpdatePond(context *gin.Context, pond *domain.Pond) (*domain.Pond, error) {
+	if context != nil {
+		_, err_record := UpdateRequestRecordAndAgentForPond(repo, context, "PUT /pond")
+		if err_record != nil {
+			return nil, err_record
+		}
+	}
+
 	farmRepo := NewGormFarmRepository(repo.db)
-	_, err_farm := farmRepo.GetFarmByID(pond.FarmID)
+	_, err_farm := farmRepo.GetFarmByID(nil, pond.FarmID)
 	if err_farm != nil {
 		return nil, errors.New("farm not found")
 	}
 	affected_row := repo.db.Model(&pond).Where("id = ? AND is_active = ?", pond.ID, true).Updates(&pond).RowsAffected
 	if affected_row == 0 {
-		insert_new_farm, _ := repo.CreatePond(pond)
-		return insert_new_farm, errors.New("Update failed, insert new instead!")
+		insert_new_farm, _ := repo.CreatePond(nil, pond)
+		return insert_new_farm, errors.New("update failed, insert new instead!")
 	}
 	return pond, nil
 }
 
 // DELETE
-func (repo *GormPondRepository) SoftDeletePond(id int64) error {
-	pond, _ := repo.GetPondByID(id)
+func (repo *GormPondRepository) SoftDeletePond(context *gin.Context, id string) error {
+	if context != nil {
+		_, err_record := UpdateRequestRecordAndAgentForPond(repo, context, "DELETE /pond")
+		if err_record != nil {
+			return err_record
+		}
+	}
 
-	pond.DeletePond()
+	pond, _ := repo.GetPondByID(nil, id)
+
+	pond.IsActive = false
 	err_delete := repo.db.Save(pond).Error
 	if err_delete != nil {
 		return err_delete
@@ -84,8 +129,15 @@ func (repo *GormPondRepository) SoftDeletePond(id int64) error {
 }
 
 // DELETE BY FARM ID
-func (repo *GormPondRepository) SoftDeletePondsByFarmID(farm_id int64) error {
-	ponds, err_find_ponds := repo.GetPondsByFarmID(farm_id)
+func (repo *GormPondRepository) SoftDeletePondsByFarmID(context *gin.Context, farm_id string) error {
+	if context != nil {
+		_, err_record := UpdateRequestRecordAndAgentForPond(repo, context, "PUT /pond/farm/:id")
+		if err_record != nil {
+			return err_record
+		}
+	}
+
+	ponds, err_find_ponds := repo.GetPondsByFarmID(nil, farm_id)
 	if err_find_ponds != nil {
 		return err_find_ponds
 	}
@@ -95,7 +147,7 @@ func (repo *GormPondRepository) SoftDeletePondsByFarmID(farm_id int64) error {
 	}
 
 	for i := range ponds {
-		err := repo.SoftDeletePond(ponds[i].ID)
+		err := repo.SoftDeletePond(nil, ponds[i].ID)
 		if err != nil {
 			return errors.New("Error deleting pond!")
 		}
