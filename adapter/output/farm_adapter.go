@@ -58,6 +58,13 @@ func (repo *GormFarmRepository) SoftDeleteFarm(id int64) error {
 	if farm_err != nil {
 		return farm_err
 	}
+
+	pondRepo := NewGormPondRepository(repo.db)
+	err_delete_ponds := pondRepo.SoftDeletePondsByFarmID(id)
+	if err_delete_ponds != nil {
+		return err_delete_ponds
+	}
+
 	farm.DeleteFarm()
 	err_delete := repo.db.Save(farm).Error
 	if err_delete != nil {

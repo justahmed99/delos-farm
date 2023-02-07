@@ -41,6 +41,7 @@ func main() {
 	router.POST("/v1/pond", pondHandler.CreatePond)
 	router.PUT("/v1/pond", pondHandler.UpdatePond)
 	router.DELETE("/v1/pond/:id", pondHandler.DeletePond)
+	router.DELETE("/v1/pond/farm/:farm_id", pondHandler.DeletePondsByFarmID)
 
 	router.Run("localhost:9090")
 }

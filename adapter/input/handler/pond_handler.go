@@ -97,3 +97,19 @@ func (h *PondHandler) DeletePond(context *gin.Context) {
 	}
 	context.IndentedJSON(http.StatusOK, gin.H{"message": "Pond data successufully deleted"})
 }
+
+func (h *PondHandler) DeletePondsByFarmID(context *gin.Context) {
+
+	id, err_input := strconv.ParseInt(context.Param("farm_id"), 10, 64)
+	if err_input != nil {
+		context.IndentedJSON(http.StatusBadRequest, gin.H{"message": "input must be integer"})
+		return
+	}
+
+	delete_err := h.pondUseCase.DeletePondsByFarmID(id)
+	if delete_err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": delete_err.Error()})
+		return
+	}
+	context.IndentedJSON(http.StatusOK, gin.H{"message": "Pond data successufully deleted"})
+}

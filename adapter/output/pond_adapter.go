@@ -84,6 +84,21 @@ func (repo *GormPondRepository) SoftDeletePond(id int64) error {
 }
 
 // DELETE BY FARM ID
-// func (repo *GormFarmRepository) SoftDeletePondsByFarmID(farm_id int64) error {
-// 	return nil
-// }
+func (repo *GormPondRepository) SoftDeletePondsByFarmID(farm_id int64) error {
+	ponds, err_find_ponds := repo.GetPondsByFarmID(farm_id)
+	if err_find_ponds != nil {
+		return err_find_ponds
+	}
+
+	if len(ponds) == 0 {
+		return nil
+	}
+
+	for i := range ponds {
+		err := repo.SoftDeletePond(ponds[i].ID)
+		if err != nil {
+			return errors.New("Error deleting pond!")
+		}
+	}
+	return nil
+}

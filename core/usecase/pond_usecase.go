@@ -12,6 +12,7 @@ type PondUseCases interface {
 	GetPondsByFarmID(farm_id int64) ([]*domain.Pond, error)
 	UpdatePond(pond domain.Pond) (*domain.Pond, error)
 	DeletePond(id int64) error
+	DeletePondsByFarmID(id int64) error
 }
 
 type PondUseCasesImpl struct {
@@ -46,4 +47,8 @@ func (useCase *PondUseCasesImpl) UpdatePond(pond domain.Pond) (*domain.Pond, err
 
 func (useCase *PondUseCasesImpl) DeletePond(id int64) error {
 	return useCase.pondRepository.SoftDeletePond(id)
+}
+
+func (useCase *PondUseCasesImpl) DeletePondsByFarmID(id int64) error {
+	return useCase.pondRepository.SoftDeletePondsByFarmID(id)
 }
