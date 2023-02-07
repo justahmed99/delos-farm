@@ -20,5 +20,5 @@ func NewGormFarmRepository(db *gorm.DB) port.FarmRepository {
 }
 
 func NewGormPondRepository(db *gorm.DB) port.PondRepository {
-	return &GormFarmRepository{db: db}
+	return &GormPondRepository{db: db}
 }

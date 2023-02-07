@@ -33,11 +33,14 @@ func main() {
 	router.PUT("/v1/farm", farmHandler.UpdateFarm)
 	router.DELETE("/v1/farm/:id", farmHandler.DeleteFarm)
 
-	// pondHandler := handler.NewPondHandler(usecase.PondUseCases())
-	// router.GET("/v1/farm/:id", pondHandler.GetFarmById)
-	// router.POST("/v1/farm", pondHandler.CreateFarm)
-	// router.PUT("/v1/farm/:id", pondHandler.UpdateFarm)
-	// router.DELETE("/v1/farm/:id", pondHandler.DeleteFarm)
+	pondRepository := adapter.NewGormPondRepository(db)
+	pondHandler := handler.NewPondHandler(usecase.NewPondUseCases(pondRepository))
+	router.GET("/v1/pond/:id", pondHandler.GetPondById)
+	router.GET("/v1/pond", pondHandler.GetPonds)
+	router.GET("/v1/pond/farm/:farm_id", pondHandler.GetPondsByFarmID)
+	router.POST("/v1/pond", pondHandler.CreatePond)
+	router.PUT("/v1/pond", pondHandler.UpdatePond)
+	router.DELETE("/v1/pond/:id", pondHandler.DeletePond)
 
 	router.Run("localhost:9090")
 }

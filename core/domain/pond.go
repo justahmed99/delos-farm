@@ -5,11 +5,11 @@ import "errors"
 type Pond struct {
 	ID       int64  `gorm:"primaryKey" json:"id"`
 	Name     string `gorm:"type:varchar(50);not null" json:"name"`
-	FarmID   int64  `gorm:"index; not null" json:"pondId"`
+	FarmID   int64  `gorm:"index; not null" json:"farmId"`
 	IsActive bool   `gorm:"default:true; not null" json:"isActive"`
 }
 
-func NewPond(name string, farm_id int64) (*Pond, error) {
+func (pond *Pond) NewPond(name string, farm_id int64) (*Pond, error) {
 	if name == "" {
 		return nil, errors.New("Name is required")
 	}
