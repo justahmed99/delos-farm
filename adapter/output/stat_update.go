@@ -6,6 +6,12 @@ import (
 )
 
 func UpdateRequestRecordAndAgentForFarm(repo *GormFarmRepository, context *gin.Context, title string) (*domain.RequestRecord, error) {
+	var agent_name = context.GetHeader("agent")
+
+	if agent_name == "" {
+
+	}
+
 	requestRecordRepo := NewGormRecordRequestRepository(repo.db)
 	record, err_find_record := requestRecordRepo.GetRequestRecordByTitle(title)
 	agentRepo := NewGormAgentRepository(repo.db)
@@ -20,8 +26,6 @@ func UpdateRequestRecordAndAgentForFarm(repo *GormFarmRepository, context *gin.C
 			return nil, err1
 		}
 	}
-
-	var agent_name = context.GetHeader("agent")
 	_, err_find_agent := agentRepo.GetAgentsByRequestRecordIdAndName(record.ID, agent_name)
 	if err_find_agent != nil {
 		record.UniqueUserAgent += 1

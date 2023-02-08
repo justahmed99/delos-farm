@@ -23,6 +23,10 @@ func (repo *GormFarmRepository) CreateFarm(context *gin.Context, farm *domain.Fa
 		}
 	}
 
+	err_check := repo.db.Where("name = ? AND is_active = ?", farm.Name, true).First(farm).Error
+	if err_check != gorm.ErrRecordNotFound {
+		return nil, errors.New("data already exist!")
+	}
 	farm.ID = uuid.NewV4().String()
 	farm.IsActive = true
 	err := repo.db.Create(farm).Error
