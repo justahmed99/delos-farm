@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/justahmed99/delos-farm/core/domain"
+	"github.com/justahmed99/delos-farm/program_constant"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -25,8 +26,9 @@ func (repo *GormFarmRepository) CreateFarm(context *gin.Context, farm *domain.Fa
 
 	err_check := repo.db.Where("name = ? AND is_active = ?", farm.Name, true).First(farm).Error
 	if err_check != gorm.ErrRecordNotFound {
-		return nil, errors.New("data already exist!")
+		return nil, errors.New(program_constant.DATA_ALREADY_ERROR)
 	}
+
 	farm.ID = uuid.NewV4().String()
 	farm.IsActive = true
 	err := repo.db.Create(farm).Error
@@ -84,7 +86,7 @@ func (repo *GormFarmRepository) UpdateFarm(context *gin.Context, farm *domain.Fa
 	affected_row := repo.db.Model(&farm).Where("id = ? AND is_active = ?", farm.ID, true).Updates(&farm).RowsAffected
 	if affected_row == 0 {
 		insert_new_farm, _ := repo.CreateFarm(nil, farm)
-		return insert_new_farm, errors.New("update failed, insert new instead!")
+		return insert_new_farm, errors.New(program_constant.UPDATE_ERROR)
 	}
 	return farm, nil
 }
