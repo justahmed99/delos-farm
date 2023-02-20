@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
@@ -16,12 +17,27 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func main() {
-	fmt.Println("Welcome to delos-farm API")
-	err := godotenv.Load()
-	if err != nil {
+func loadEnv(envFile string) {
+	if err := godotenv.Load(envFile); err != nil {
 		fmt.Print("Error loading .env file")
 	}
+}
+
+func main() {
+	fmt.Println("Welcome to delos-farm API")
+
+	envFile := flag.String("env-file", ".env", "Path to .env file")
+	flag.Parse()
+
+	loadEnv(*envFile)
+
+	// envFiles := []string{".env", ".env.docker"}
+	// for _, file := range envFiles {
+	// 	err := godotenv.Load(file)
+	// 	if err != nil {
+	// 		fmt.Print("Error loading .env file")
+	// 	}
+	// }
 
 	dbHost := os.Getenv("DB_HOST")
 	dbPort := os.Getenv("DB_PORT")
