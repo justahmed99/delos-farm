@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/justahmed99/delos-farm/core/domain"
+	"github.com/justahmed99/delos-farm/program_constant"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -25,7 +26,7 @@ func (repo *GormPondRepository) CreatePond(context *gin.Context, pond *domain.Po
 	farmRepo := NewGormFarmRepository(repo.db)
 	_, err_farm := farmRepo.GetFarmByID(nil, pond.FarmID)
 	if err_farm != nil {
-		return nil, errors.New("farm not found")
+		return nil, errors.New(program_constant.FARM_NOT_FOUND_ERROR)
 	}
 	pond.ID = uuid.NewV4().String()
 	pond.NewPond(pond.Name, pond.FarmID)
@@ -104,7 +105,7 @@ func (repo *GormPondRepository) UpdatePond(context *gin.Context, pond *domain.Po
 	affected_row := repo.db.Model(&pond).Where("id = ? AND is_active = ?", pond.ID, true).Updates(&pond).RowsAffected
 	if affected_row == 0 {
 		insert_new_farm, _ := repo.CreatePond(nil, pond)
-		return insert_new_farm, errors.New("update failed, insert new instead!")
+		return insert_new_farm, errors.New(program_constant.UPDATE_ERROR)
 	}
 	return pond, nil
 }
@@ -149,7 +150,7 @@ func (repo *GormPondRepository) SoftDeletePondsByFarmID(context *gin.Context, fa
 	for i := range ponds {
 		err := repo.SoftDeletePond(nil, ponds[i].ID)
 		if err != nil {
-			return errors.New("Error deleting pond!")
+			return errors.New(program_constant.POND_DELETE_ERROR)
 		}
 	}
 	return nil

@@ -8,17 +8,20 @@ services:
       POSTGRES_PASSWORD: developmentdb
       POSTGRES_DB: delos_farm
     ports:
-      - "5432:5432"
-    volumes:
-      - db-data:/var/lib/postgresql/data
-    command: bash -c "while ! pg_isready -h 'db' -U postgres; do sleep 1; done; exec postgres -D /var/lib/postgresql/data"
+      - "2345:5432"
+    networks:
+      - delos-farm-net
   app:
     build: .
     ports:
-      - "7000:9091"
+      - "7000:7000"
     container_name: delos-farm-app
     depends_on:
       - db
+    env_file:
+      - .env.docker
+    networks:
+      - delos-farm-net
 
-volumes:
-  db-data:
+networks:
+  delos-farm-net:
